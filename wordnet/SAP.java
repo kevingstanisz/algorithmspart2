@@ -18,7 +18,7 @@ public class SAP {
 
     private Digraph sapDigraph;
 
-    enum FindShortest {
+    private enum FindShortest {
         PATH_LENGTH, COMMON_ANCESTOR
     }
 
