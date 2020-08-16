@@ -6,17 +6,16 @@
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 
 public class WordNet {
 
-    private final Map<Integer, String> idToNoun;
-    private final Map<String, ArrayList<Integer>> nounToId;
+    private final HashMap<Integer, String> idToNoun;
+    private final HashMap<String, ArrayList<Integer>> nounToId;
+    private final SAP sapDistance;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -67,6 +66,8 @@ public class WordNet {
 
             lineString = inHypernyms.readLine();
         }
+
+        sapDistance = new SAP(wordDigraph);
     }
 
     // returns all WordNet nouns
@@ -76,18 +77,34 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
-        return true;
+        return nounToId.get(word) != null;
+    }
+
+    private void checkNouns(String nounA, String nounB) {
+        if (!isNoun(nounA) || !isNoun(nounA)) {
+            throw new IllegalArgumentException();
+        }
     }
 
     // distance between nounA and nounB (defined below)
     public int distance(String nounA, String nounB) {
-        return 0;
+        checkNouns(nounA, nounB);
+
+        ArrayList<Integer> aID = nounToId.get(nounA);
+        ArrayList<Integer> bID = nounToId.get(nounB);
+
+        return sapDistance.length(nounToId.get(nounA), nounToId.get(nounB));
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
-        return " ";
+        checkNouns(nounA, nounB);
+
+        ArrayList<Integer> aID = nounToId.get(nounA);
+        ArrayList<Integer> bID = nounToId.get(nounB);
+
+        return idToNoun.get(sapDistance.ancestor(aID, bID));
     }
 
     // do unit testing of this class
@@ -101,6 +118,10 @@ public class WordNet {
             j++;
         }
 
-        StdOut.println(j);
+        // StdOut.println(j);
+        // StdOut.println(wordNet.isNoun("happening"));
+        // StdOut.println(wordNet.isNoun("miracle"));
+        // StdOut.println(wordNet.distance("happening", "miracle"));
+        // StdOut.println(wordNet.sap("happening", "miracle"));
     }
 }
