@@ -5,6 +5,7 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.DirectedCycle;
 import edu.princeton.cs.algs4.In;
 
 import java.util.ArrayList;
@@ -68,6 +69,24 @@ public class WordNet {
         }
 
         sapDistance = new SAP(wordDigraph);
+
+        DirectedCycle acyclicDAG = new DirectedCycle(wordDigraph);
+
+        if (acyclicDAG.hasCycle()) {
+            throw new IllegalArgumentException();
+        }
+
+        boolean rootFound = false;
+
+        for (int v = 0; v < wordDigraph.V(); v++) {
+            if (wordDigraph.outdegree(v) == 0) {
+                if (rootFound) {
+                    throw new IllegalArgumentException();
+                }
+
+                rootFound = true;
+            }
+        }
     }
 
     // returns all WordNet nouns
@@ -77,6 +96,10 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
+        if (word == null) {
+            throw new IllegalArgumentException();
+        }
+
         return nounToId.get(word) != null;
     }
 

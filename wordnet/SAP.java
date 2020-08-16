@@ -29,6 +29,9 @@ public class SAP {
 
     private int vertexBFS(int v, int w, FindShortest lookingFor) {
         // check that v and w are valid
+        if (v >= sapDigraph.V() || w >= sapDigraph.V() || v < 0 || w < 0) {
+            throw new IllegalArgumentException();
+        }
 
         BreadthFirstDirectedPaths vBFS = new BreadthFirstDirectedPaths(sapDigraph, v);
         BreadthFirstDirectedPaths wBFS = new BreadthFirstDirectedPaths(sapDigraph, w);
@@ -39,6 +42,29 @@ public class SAP {
 
     private int verticesBFS(Iterable<Integer> v, Iterable<Integer> w, FindShortest lookingFor) {
         // check that v and w are valid
+        if (v == null || w == null) {
+            throw new IllegalArgumentException();
+        }
+
+        boolean[] notEmptyArray = new boolean[2];
+
+        for (Integer vValue : v) {
+            notEmptyArray[0] = true;
+            if (vValue == null || vValue < 0 || vValue >= sapDigraph.V()) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        for (Integer wValue : w) {
+            notEmptyArray[1] = true;
+            if (wValue == null || wValue < 0 || wValue >= sapDigraph.V()) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        if (!notEmptyArray[0] || !notEmptyArray[1]) {
+            return -1;
+        }
 
         BreadthFirstDirectedPaths vBFS = new BreadthFirstDirectedPaths(sapDigraph, v);
         BreadthFirstDirectedPaths wBFS = new BreadthFirstDirectedPaths(sapDigraph, w);
