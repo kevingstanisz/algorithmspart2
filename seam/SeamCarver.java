@@ -18,12 +18,16 @@ public class SeamCarver {
 
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
+        if (picture == null) {
+            throw new IllegalArgumentException();
+        }
+
         scPicture = new Picture(picture);
     }
 
     // current picture
     public Picture picture() {
-        return scPicture;
+        return new Picture(scPicture);
     }
 
     // width of current picture
@@ -40,16 +44,14 @@ public class SeamCarver {
         if ((direction == Direction.XDIR && x == 0 || x == scPicture.width() - 1) || (
                 direction == Direction.YDIR && y == 0 || y == scPicture.height() - 1)) {
             return -1;
-        }
-        else {
+        } else {
             int forwardSide;
             int behindSide;
 
             if (direction == Direction.XDIR) {
                 forwardSide = scPicture.getRGB(x + 1, y);
                 behindSide = scPicture.getRGB(x - 1, y);
-            }
-            else {
+            } else {
                 forwardSide = scPicture.getRGB(x, y + 1);
                 behindSide = scPicture.getRGB(x, y - 1);
             }
@@ -75,8 +77,7 @@ public class SeamCarver {
 
         if (xGradient == -1 || yGradient == -1) {
             return 1000;
-        }
-        else {
+        } else {
             return Math.sqrt(xGradient + yGradient);
         }
     }
@@ -208,11 +209,35 @@ public class SeamCarver {
         }
 
         for (int i = 0; i < scPicture.width(); i++) {
-            if (seam[i] < 0 || seam[i] > (scPicture.width() - 1)) {
+            if (seam[i] < 0 || seam[i] > (scPicture.height() - 1)) {
                 throw new IllegalArgumentException();
+            } else if (i > 0) {
+                if ((seam[i] != (seam[i - 1] - 1)) && (seam[i] != (seam[i - 1] + 1)) && (seam[i] != (seam[i - 1]))) {
+                    throw new IllegalArgumentException();
+                }
             }
         }
 
+        Picture newPicture = new Picture(scPicture.width(), scPicture.height() - 1);
+
+        boolean seamFound = false;
+
+        for (int i = 0; i < newPicture.width(); i++) {
+            seamFound = false;
+            for (int j = 0; j < newPicture.height(); j++) {
+                if (seam[i] == j) {
+                    seamFound = true;
+                }
+
+                if (seamFound) {
+                    newPicture.set(i, j, scPicture.get(i, j + 1));
+                } else {
+                    newPicture.set(i, j, scPicture.get(i, j));
+                }
+            }
+        }
+
+        scPicture = newPicture;
     }
 
     // remove vertical seam from current picture
@@ -222,11 +247,35 @@ public class SeamCarver {
         }
 
         for (int j = 0; j < scPicture.height(); j++) {
-            if (seam[j] < 0 || seam[j] > (scPicture.height() - 1)) {
+            if (seam[j] < 0 || seam[j] > (scPicture.width() - 1)) {
                 throw new IllegalArgumentException();
+            } else if (j > 0) {
+                if ((seam[j] != (seam[j - 1] - 1)) && (seam[j] != (seam[j - 1] + 1)) && (seam[j] != (seam[j - 1]))) {
+                    throw new IllegalArgumentException();
+                }
             }
         }
 
+        Picture newPicture = new Picture(scPicture.width() - 1, scPicture.height());
+
+        boolean seamFound = false;
+
+        for (int j = 0; j < newPicture.height(); j++) {
+            seamFound = false;
+            for (int i = 0; i < newPicture.width(); i++) {
+                if (seam[j] == i) {
+                    seamFound = true;
+                }
+
+                if (seamFound) {
+                    newPicture.set(i, j, scPicture.get(i + 1, j));
+                } else {
+                    newPicture.set(i, j, scPicture.get(i, j));
+                }
+            }
+        }
+
+        scPicture = newPicture;
     }
 
     //  unit testing (optional)
