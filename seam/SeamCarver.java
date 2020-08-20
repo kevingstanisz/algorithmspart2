@@ -10,6 +10,7 @@ import edu.princeton.cs.algs4.StdOut;
 public class SeamCarver {
 
     private Picture scPicture;
+    private double[][] pictureArr;
 
     private enum Direction {
         XDIR, YDIR
@@ -68,7 +69,7 @@ public class SeamCarver {
         if (x < 0 || x >= scPicture.width() || y < 0 || y >= scPicture.height()) {
             throw new IllegalArgumentException();
         }
-        
+
         double xGradient = calculateGradient(x, y, Direction.XDIR);
         double yGradient = calculateGradient(x, y, Direction.YDIR);
 
@@ -80,9 +81,82 @@ public class SeamCarver {
         }
     }
 
+    private void fillPictureArr() {
+        pictureArr = new double[scPicture.width()][scPicture.height()];
+
+        for (int i = 0; i < scPicture.width(); i++) {
+            for (int j = 0; j < scPicture.height(); j++) {
+                pictureArr[i][j] = this.energy(i, j);
+            }
+        }
+    }
+
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        return null;
+        fillPictureArr();
+        int[][] edgeTo = new int[scPicture.width()][scPicture.height()];
+        double[][] distTo = new double[scPicture.width()][scPicture.height()];
+
+        for (int j = 0; j < scPicture.height(); j++) {
+            distTo[0][j] = pictureArr[0][j];
+        }
+
+        // topological order
+        for (int i = 0; i < scPicture.width() - 1; i++) {
+            for (int j = 0; j < scPicture.height(); j++) {
+                // look to the right and the diagonals
+                if (j != 0) {
+                    if ((distTo[i + 1][j - 1] > distTo[i][j] + pictureArr[i + 1][j - 1])
+                            || distTo[i + 1][j - 1] == 0) {
+                        distTo[i + 1][j - 1] = distTo[i][j] + pictureArr[i + 1][j - 1];
+                        edgeTo[i + 1][j - 1] = j;
+                        // StdOut.println(
+                        //         "UP i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + (j
+                        //                 - 1));
+                    }
+                }
+
+                if (j != (scPicture.height() - 1)) {
+                    if ((distTo[i + 1][j + 1] > distTo[i][j] + pictureArr[i + 1][j + 1])
+                            || distTo[i + 1][j + 1] == 0) {
+                        distTo[i + 1][j + 1] = distTo[i][j] + pictureArr[i + 1][j + 1];
+                        edgeTo[i + 1][j + 1] = j;
+                        // StdOut.println(
+                        //         "DOWN i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + (
+                        //                 j
+                        //                         + 1));
+                    }
+                }
+
+                if ((distTo[i + 1][j] > distTo[i][j] + pictureArr[i + 1][j])
+                        || distTo[i + 1][j] == 0) {
+                    distTo[i + 1][j] = distTo[i][j] + pictureArr[i + 1][j];
+                    edgeTo[i + 1][j] = j;
+                    // StdOut.println(
+                    //         "RIGHT i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + j);
+                }
+            }
+        }
+
+        int[] minVertex = new int[scPicture.width()];
+        double currDist = -1;
+
+        for (int j = 0; j < scPicture.height(); j++) {
+            if (distTo[scPicture.width() - 1][j] < currDist || currDist == -1) {
+                currDist = distTo[scPicture.width() - 1][j];
+                minVertex[scPicture.width() - 1] = j;
+            }
+        }
+
+        StdOut.println(
+                "SMALLEST VALUE at j " + minVertex[scPicture.width() - 1] + " with next vertex"
+                        + edgeTo[scPicture.width() - 1][minVertex[scPicture.width() - 1]]);
+
+        for (int i = scPicture.width() - 2; i >= 0; i--) {
+            minVertex[i] = edgeTo[i + 1][minVertex[i + 1]];
+        }
+
+        return minVertex;
     }
 
     // sequence of indices for vertical seam
