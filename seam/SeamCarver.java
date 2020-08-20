@@ -110,9 +110,6 @@ public class SeamCarver {
                             || distTo[i + 1][j - 1] == 0) {
                         distTo[i + 1][j - 1] = distTo[i][j] + pictureArr[i + 1][j - 1];
                         edgeTo[i + 1][j - 1] = j;
-                        // StdOut.println(
-                        //         "UP i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + (j
-                        //                 - 1));
                     }
                 }
 
@@ -121,10 +118,6 @@ public class SeamCarver {
                             || distTo[i + 1][j + 1] == 0) {
                         distTo[i + 1][j + 1] = distTo[i][j] + pictureArr[i + 1][j + 1];
                         edgeTo[i + 1][j + 1] = j;
-                        // StdOut.println(
-                        //         "DOWN i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + (
-                        //                 j
-                        //                         + 1));
                     }
                 }
 
@@ -132,8 +125,6 @@ public class SeamCarver {
                         || distTo[i + 1][j] == 0) {
                     distTo[i + 1][j] = distTo[i][j] + pictureArr[i + 1][j];
                     edgeTo[i + 1][j] = j;
-                    // StdOut.println(
-                    //         "RIGHT i: " + i + " j " + j + " pointing to i " + (i + 1) + " j " + j);
                 }
             }
         }
@@ -148,10 +139,6 @@ public class SeamCarver {
             }
         }
 
-        StdOut.println(
-                "SMALLEST VALUE at j " + minVertex[scPicture.width() - 1] + " with next vertex"
-                        + edgeTo[scPicture.width() - 1][minVertex[scPicture.width() - 1]]);
-
         for (int i = scPicture.width() - 2; i >= 0; i--) {
             minVertex[i] = edgeTo[i + 1][minVertex[i + 1]];
         }
@@ -161,16 +148,84 @@ public class SeamCarver {
 
     // sequence of indices for vertical seam
     public int[] findVerticalSeam() {
-        return null;
+        fillPictureArr();
+        int[][] edgeTo = new int[scPicture.width()][scPicture.height()];
+        double[][] distTo = new double[scPicture.width()][scPicture.height()];
+
+        for (int i = 0; i < scPicture.width(); i++) {
+            distTo[i][0] = pictureArr[i][0];
+        }
+
+        // topological order
+        for (int j = 0; j < scPicture.height() - 1; j++) {
+            for (int i = 0; i < scPicture.width(); i++) {
+                // look to the right and the diagonals
+                if (i != 0) {
+                    if ((distTo[i - 1][j + 1] > distTo[i][j] + pictureArr[i - 1][j + 1])
+                            || distTo[i - 1][j + 1] == 0) {
+                        distTo[i - 1][j + 1] = distTo[i][j] + pictureArr[i - 1][j + 1];
+                        edgeTo[i - 1][j + 1] = i;
+                    }
+                }
+
+                if (i != (scPicture.width() - 1)) {
+                    if ((distTo[i + 1][j + 1] > distTo[i][j] + pictureArr[i + 1][j + 1])
+                            || distTo[i + 1][j + 1] == 0) {
+                        distTo[i + 1][j + 1] = distTo[i][j] + pictureArr[i + 1][j + 1];
+                        edgeTo[i + 1][j + 1] = i;
+                    }
+                }
+
+                if ((distTo[i][j + 1] > distTo[i][j] + pictureArr[i][j + 1])
+                        || distTo[i][j + 1] == 0) {
+                    distTo[i][j + 1] = distTo[i][j] + pictureArr[i][j + 1];
+                    edgeTo[i][j + 1] = i;
+                }
+            }
+        }
+
+        int[] minVertex = new int[scPicture.height()];
+        double currDist = -1;
+
+        for (int i = 0; i < scPicture.width(); i++) {
+            if (distTo[i][scPicture.height() - 1] < currDist || currDist == -1) {
+                currDist = distTo[i][scPicture.height() - 1];
+                minVertex[scPicture.height() - 1] = i;
+            }
+        }
+
+        for (int j = scPicture.height() - 2; j >= 0; j--) {
+            minVertex[j] = edgeTo[minVertex[j + 1]][j + 1];
+        }
+
+        return minVertex;
     }
 
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam == null || seam.length != scPicture.width() || scPicture.height() <= 1) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int i = 0; i < scPicture.width(); i++) {
+            if (seam[i] < 0 || seam[i] > (scPicture.width() - 1)) {
+                throw new IllegalArgumentException();
+            }
+        }
 
     }
 
     // remove vertical seam from current picture
     public void removeVerticalSeam(int[] seam) {
+        if (seam == null || seam.length != scPicture.height() || scPicture.width() <= 1) {
+            throw new IllegalArgumentException();
+        }
+
+        for (int j = 0; j < scPicture.height(); j++) {
+            if (seam[j] < 0 || seam[j] > (scPicture.height() - 1)) {
+                throw new IllegalArgumentException();
+            }
+        }
 
     }
 
