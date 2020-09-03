@@ -40,8 +40,13 @@ public class BoggleSolver {
     }
 
     private void dieDFS(BoggleBoard board, int i, int j, String currentPath) {
+        StdOut.println(board.getLetter(i, j));
         currentPath += board.getLetter(i, j);
         // StdOut.println(currentPath);
+
+        if (board.getLetter(i, j) == 'Q') {
+            currentPath += 'U';
+        }
 
         if (!bogglePrefixDictionary.contains(currentPath)) {
             // StdOut.println("nothing matches " + currentPath);
