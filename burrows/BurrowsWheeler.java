@@ -6,6 +6,10 @@
 
 import edu.princeton.cs.algs4.BinaryStdIn;
 import edu.princeton.cs.algs4.BinaryStdOut;
+import edu.princeton.cs.algs4.Queue;
+
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class BurrowsWheeler {
 
@@ -41,7 +45,33 @@ public class BurrowsWheeler {
     // apply Burrows-Wheeler inverse transform,
     // reading from standard input and writing to standard output
     public static void inverseTransform() {
+        int originalString = BinaryStdIn.readInt();
+        String lastColumn = BinaryStdIn.readString();
 
+        HashMap<Character, Queue<Integer>> sortedTable = new HashMap<Character, Queue<Integer>>();
+
+        for (int i = 0; i < lastColumn.length(); i++) {
+            if (!sortedTable.containsKey(lastColumn.charAt(i))) {
+                sortedTable.put(lastColumn.charAt(i), new Queue<Integer>());
+            }
+            sortedTable.get(lastColumn.charAt(i)).enqueue(i);
+        }
+
+        char sortedWord[] = lastColumn.toCharArray();
+        Arrays.sort(sortedWord);
+        int next[] = new int[sortedWord.length];
+
+        for (int i = 0; i < sortedWord.length; i++) {
+            next[i] = sortedTable.get(sortedWord[i]).dequeue();
+        }
+
+        for (int i = 0; i < sortedWord.length; i++) {
+            BinaryStdOut.write(sortedWord[originalString], 8);
+            originalString = next[originalString];
+        }
+
+        BinaryStdIn.close();
+        BinaryStdOut.close();
     }
 
     // if args[0] is "-", apply Burrows-Wheeler transform
