@@ -4,6 +4,8 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.StdOut;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -38,8 +40,9 @@ public class CircularSuffixArray {
 
             for (int i = 0; i < suffixString.length(); i++) {
                 firstIndex = (index1 + i) % suffixString.length();
-                secondIndex = (index1 + i) % suffixString.length();
+                secondIndex = (index2 + i) % suffixString.length();
                 result = suffixString.charAt(firstIndex) - suffixString.charAt(secondIndex);
+                // StdOut.println("same");
                 if (result != 0) {
                     return result;
                 }
@@ -65,6 +68,10 @@ public class CircularSuffixArray {
 
     // unit testing (required)
     public static void main(String[] args) {
+        CircularSuffixArray abracadabraTest = new CircularSuffixArray("ABRACADABRA!");
 
+        for (int i = 0; i < abracadabraTest.length(); i++) {
+            StdOut.println(abracadabraTest.index(i));
+        }
     }
 }
